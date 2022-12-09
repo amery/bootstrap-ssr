@@ -1,14 +1,14 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap (v5.2.2): util/focustrap.js
+ * Bootstrap (v5.2.3): util/focustrap.js
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  * --------------------------------------------------------------------------
  */
 
-import EventHandler from '../dom/event-handler'
-import SelectorEngine from '../dom/selector-engine'
-import { getDocument } from './index'
-import Config from './config'
+import EventHandler from '../dom/event-handler.js'
+import SelectorEngine from '../dom/selector-engine.js'
+import { getDocument } from './index.js'
+import Config from './config.js'
 
 /**
  * Constants

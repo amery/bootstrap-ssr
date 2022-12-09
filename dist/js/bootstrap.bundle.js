@@ -1,5 +1,5 @@
 /*!
-  * Bootstrap v5.2.2 (https://getbootstrap.com/)
+  * Bootstrap v5.2.3 (https://getbootstrap.com/)
   * Copyright 2011-2022 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
   */
@@ -11,7 +11,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): util/index.js
+   * Bootstrap (v5.2.3): util/index.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -19,6 +19,19 @@
   const MAX_UID = 1000000;
   const MILLISECONDS_MULTIPLIER = 1000;
   const TRANSITION_END = 'transitionend';
+
+  /**
+   * Properly escape IDs selectors to handle weird IDs
+   * @param {string} selector
+   * @returns {string}
+   */
+  const parseSelector$1 = selector => {
+    if (selector && window.CSS && window.CSS.escape) {
+      // document.querySelector needs escaping to handle IDs (html5+) containing for instance /
+      selector = selector.replace(/#([^\s"#']+)/g, (match, id) => `#${CSS.escape(id)}`);
+    }
+    return selector;
+  };
 
   // Shout-out Angus Croll (https://goo.gl/pxwQGp)
   const toType = object => {
@@ -38,38 +51,6 @@
     } while (getDocument().getElementById(prefix));
     return prefix;
   };
-  const getSelector = element => {
-    let selector = element.getAttribute('data-bs-target');
-    if (!selector || selector === '#') {
-      let hrefAttribute = element.getAttribute('href');
-
-      // The only valid content that could double as a selector are IDs or classes,
-      // so everything starting with `#` or `.`. If a "real" URL is used as the selector,
-      // `document.querySelector` will rightfully complain it is invalid.
-      // See https://github.com/twbs/bootstrap/issues/32273
-      if (!hrefAttribute || !hrefAttribute.includes('#') && !hrefAttribute.startsWith('.')) {
-        return null;
-      }
-
-      // Just in case some CMS puts out a full URL with the anchor appended
-      if (hrefAttribute.includes('#') && !hrefAttribute.startsWith('#')) {
-        hrefAttribute = `#${hrefAttribute.split('#')[1]}`;
-      }
-      selector = hrefAttribute && hrefAttribute !== '#' ? hrefAttribute.trim() : null;
-    }
-    return selector;
-  };
-  const getSelectorFromElement = element => {
-    const selector = getSelector(element);
-    if (selector) {
-      return getDocument().querySelector(selector) ? selector : null;
-    }
-    return null;
-  };
-  const getElementFromSelector = element => {
-    const selector = getSelector(element);
-    return selector ? getDocument().querySelector(selector) : null;
-  };
   const getTransitionDurationFromElement = element => {
     if (!element) {
       return 0;
@@ -79,7 +60,7 @@
     let {
       transitionDuration,
       transitionDelay
-    } = getWindow$1().getComputedStyle(element);
+    } = getWindow$2().getComputedStyle(element);
     const floatTransitionDuration = Number.parseFloat(transitionDuration);
     const floatTransitionDelay = Number.parseFloat(transitionDelay);
 
@@ -111,7 +92,7 @@
       return object.jquery ? object[0] : object;
     }
     if (typeof object === 'string' && object.length > 0) {
-      return document.querySelector(object);
+      return document.querySelector(parseSelector$1(object));
     }
     return null;
   };
@@ -183,7 +164,7 @@
   };
 
   const getjQuery = () => {
-    if (getWindow$1().jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
+    if (getWindow$2().jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return window.jQuery;
     }
     return null;
@@ -282,7 +263,7 @@
   /**
    * @return {window|{}} The proper element
    */
-  const getWindow$1 = () => {
+  const getWindow$2 = () => {
     return typeof window !== 'undefined' ? window : {};
   };
 
@@ -295,7 +276,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): dom/event-handler.js
+   * Bootstrap (v5.2.3): dom/event-handler.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -417,9 +398,8 @@
   }
   function removeNamespacedHandlers(element, events, typeEvent, namespace) {
     const storeElementEvent = events[typeEvent] || {};
-    for (const handlerKey of Object.keys(storeElementEvent)) {
+    for (const [handlerKey, event] of Object.entries(storeElementEvent)) {
       if (handlerKey.includes(namespace)) {
-        const event = storeElementEvent[handlerKey];
         removeHandler(element, events, typeEvent, event.callable, event.delegationSelector);
       }
     }
@@ -458,10 +438,9 @@
           removeNamespacedHandlers(element, events, elementEvent, originalTypeEvent.slice(1));
         }
       }
-      for (const keyHandlers of Object.keys(storeElementEvent)) {
+      for (const [keyHandlers, event] of Object.entries(storeElementEvent)) {
         const handlerKey = keyHandlers.replace(stripUidRegex, '');
         if (!inNamespace || originalTypeEvent.includes(handlerKey)) {
-          const event = storeElementEvent[keyHandlers];
           removeHandler(element, events, typeEvent, event.callable, event.delegationSelector);
         }
       }
@@ -501,8 +480,8 @@
       return evt;
     }
   };
-  function hydrateObj(obj, meta) {
-    for (const [key, value] of Object.entries(meta || {})) {
+  function hydrateObj(obj, meta = {}) {
+    for (const [key, value] of Object.entries(meta)) {
       try {
         obj[key] = value;
       } catch (_unused) {
@@ -519,7 +498,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): dom/data.js
+   * Bootstrap (v5.2.3): dom/data.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -567,7 +546,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): dom/manipulator.js
+   * Bootstrap (v5.2.3): dom/manipulator.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -624,7 +603,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): util/config.js
+   * Bootstrap (v5.2.3): util/config.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -664,8 +643,7 @@
       };
     }
     _typeCheckConfig(config, configTypes = this.constructor.DefaultType) {
-      for (const property of Object.keys(configTypes)) {
-        const expectedTypes = configTypes[property];
+      for (const [property, expectedTypes] of Object.entries(configTypes)) {
         const value = config[property];
         const valueType = isElement$1(value) ? 'element' : toType(value);
         if (!new RegExp(expectedTypes).test(valueType)) {
@@ -677,7 +655,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): base-component.js
+   * Bootstrap (v5.2.3): base-component.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -686,7 +664,7 @@
    * Constants
    */
 
-  const VERSION = '5.2.2';
+  const VERSION = '5.2.3';
 
   /**
    * Class definition
@@ -700,7 +678,7 @@
         return;
       }
       this._element = element;
-      this._window = getWindow$1();
+      this._window = getWindow$2();
       this._document = getDocument();
       this._config = this._getConfig(config);
       Data.set(this._element, this.constructor.DATA_KEY, this);
@@ -747,7 +725,95 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): util/component-functions.js
+   * Bootstrap (v5.2.3): dom/selector-engine.js
+   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+   * --------------------------------------------------------------------------
+   */
+  const getSelector = element => {
+    let selector = element.getAttribute('data-bs-target');
+    if (!selector || selector === '#') {
+      let hrefAttribute = element.getAttribute('href');
+
+      // The only valid content that could double as a selector are IDs or classes,
+      // so everything starting with `#` or `.`. If a "real" URL is used as the selector,
+      // `document.querySelector` will rightfully complain it is invalid.
+      // See https://github.com/twbs/bootstrap/issues/32273
+      if (!hrefAttribute || !hrefAttribute.includes('#') && !hrefAttribute.startsWith('.')) {
+        return null;
+      }
+
+      // Just in case some CMS puts out a full URL with the anchor appended
+      if (hrefAttribute.includes('#') && !hrefAttribute.startsWith('#')) {
+        hrefAttribute = `#${hrefAttribute.split('#')[1]}`;
+      }
+      selector = hrefAttribute && hrefAttribute !== '#' ? hrefAttribute.trim() : null;
+    }
+    return parseSelector(selector);
+  };
+  const SelectorEngine = {
+    find(selector, element = getDocument().documentElement) {
+      return [].concat(...Element.prototype.querySelectorAll.call(element, selector));
+    },
+    findOne(selector, element = getDocument().documentElement) {
+      return Element.prototype.querySelector.call(element, selector);
+    },
+    children(element, selector) {
+      return [].concat(...element.children).filter(child => child.matches(selector));
+    },
+    parents(element, selector) {
+      const parents = [];
+      let ancestor = element.parentNode.closest(selector);
+      while (ancestor) {
+        parents.push(ancestor);
+        ancestor = ancestor.parentNode.closest(selector);
+      }
+      return parents;
+    },
+    prev(element, selector) {
+      let previous = element.previousElementSibling;
+      while (previous) {
+        if (previous.matches(selector)) {
+          return [previous];
+        }
+        previous = previous.previousElementSibling;
+      }
+      return [];
+    },
+    // TODO: this is now unused; remove later along with prev()
+    next(element, selector) {
+      let next = element.nextElementSibling;
+      while (next) {
+        if (next.matches(selector)) {
+          return [next];
+        }
+        next = next.nextElementSibling;
+      }
+      return [];
+    },
+    focusableChildren(element) {
+      const focusables = ['a', 'button', 'input', 'textarea', 'select', 'details', '[tabindex]', '[contenteditable="true"]'].map(selector => `${selector}:not([tabindex^="-"])`).join(',');
+      return this.find(focusables, element).filter(el => !isDisabled(el) && isVisible(el));
+    },
+    getSelectorFromElement(element) {
+      const selector = getSelector(element);
+      if (selector) {
+        return SelectorEngine.findOne(selector) ? selector : null;
+      }
+      return null;
+    },
+    getElementFromSelector(element) {
+      const selector = getSelector(element);
+      return selector ? SelectorEngine.findOne(selector) : null;
+    },
+    getMultipleElementsFromSelector(element) {
+      const selector = getSelector(element);
+      return selector ? SelectorEngine.find(selector) : [];
+    }
+  };
+
+  /**
+   * --------------------------------------------------------------------------
+   * Bootstrap (v5.2.3): util/component-functions.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -761,7 +827,7 @@
       if (isDisabled(this)) {
         return;
       }
-      const target = getElementFromSelector(this) || this.closest(`.${name}`);
+      const target = SelectorEngine.getElementFromSelector(this) || this.closest(`.${name}`);
       const instance = component.getOrCreateInstance(target);
 
       // Method argument is left, for Alert and only, as it doesn't implement the 'hide' method
@@ -771,7 +837,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): alert.js
+   * Bootstrap (v5.2.3): alert.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -845,7 +911,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): button.js
+   * Bootstrap (v5.2.3): button.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -908,64 +974,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): dom/selector-engine.js
-   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
-   * --------------------------------------------------------------------------
-   */
-
-  /**
-   * Constants
-   */
-
-  const SelectorEngine = {
-    find(selector, element = getDocument().documentElement) {
-      return [].concat(...Element.prototype.querySelectorAll.call(element, selector));
-    },
-    findOne(selector, element = getDocument().documentElement) {
-      return Element.prototype.querySelector.call(element, selector);
-    },
-    children(element, selector) {
-      return [].concat(...element.children).filter(child => child.matches(selector));
-    },
-    parents(element, selector) {
-      const parents = [];
-      let ancestor = element.parentNode.closest(selector);
-      while (ancestor) {
-        parents.push(ancestor);
-        ancestor = ancestor.parentNode.closest(selector);
-      }
-      return parents;
-    },
-    prev(element, selector) {
-      let previous = element.previousElementSibling;
-      while (previous) {
-        if (previous.matches(selector)) {
-          return [previous];
-        }
-        previous = previous.previousElementSibling;
-      }
-      return [];
-    },
-    // TODO: this is now unused; remove later along with prev()
-    next(element, selector) {
-      let next = element.nextElementSibling;
-      while (next) {
-        if (next.matches(selector)) {
-          return [next];
-        }
-        next = next.nextElementSibling;
-      }
-      return [];
-    },
-    focusableChildren(element) {
-      const focusables = ['a', 'button', 'input', 'textarea', 'select', 'details', '[tabindex]', '[contenteditable="true"]'].map(selector => `${selector}:not([tabindex^="-"])`).join(',');
-      return this.find(focusables, element).filter(el => !isDisabled(el) && isVisible(el));
-    }
-  };
-
-  /**
-   * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): util/swipe.js
+   * Bootstrap (v5.2.3): util/swipe.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -1009,7 +1018,7 @@
       }
       this._config = this._getConfig(config);
       this._deltaX = 0;
-      this._supportPointerEvents = Boolean(getWindow$1().PointerEvent);
+      this._supportPointerEvents = Boolean(getWindow$2().PointerEvent);
       this._initEvents();
     }
 
@@ -1084,7 +1093,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): carousel.js
+   * Bootstrap (v5.2.3): carousel.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -1421,7 +1430,7 @@
    */
 
   EventHandler.on(getDocument(), EVENT_CLICK_DATA_API$5, SELECTOR_DATA_SLIDE, function (event) {
-    const target = getElementFromSelector(this);
+    const target = SelectorEngine.getElementFromSelector(this);
     if (!target || !target.classList.contains(CLASS_NAME_CAROUSEL)) {
       return;
     }
@@ -1441,7 +1450,7 @@
     carousel.prev();
     carousel._maybeEnableCycle();
   });
-  EventHandler.on(getWindow$1(), EVENT_LOAD_DATA_API$3, () => {
+  EventHandler.on(getWindow$2(), EVENT_LOAD_DATA_API$3, () => {
     const carousels = SelectorEngine.find(SELECTOR_DATA_RIDE);
     for (const carousel of carousels) {
       Carousel.getOrCreateInstance(carousel);
@@ -1456,7 +1465,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): collapse.js
+   * Bootstrap (v5.2.3): collapse.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -1504,7 +1513,7 @@
       this._triggerArray = [];
       const toggleList = SelectorEngine.find(SELECTOR_DATA_TOGGLE$4);
       for (const elem of toggleList) {
-        const selector = getSelectorFromElement(elem);
+        const selector = SelectorEngine.getSelectorFromElement(elem);
         const filterElement = SelectorEngine.find(selector).filter(foundElement => foundElement === this._element);
         if (selector !== null && filterElement.length) {
           this._triggerArray.push(elem);
@@ -1592,7 +1601,7 @@
       this._element.classList.add(CLASS_NAME_COLLAPSING);
       this._element.classList.remove(CLASS_NAME_COLLAPSE, CLASS_NAME_SHOW$7);
       for (const trigger of this._triggerArray) {
-        const element = getElementFromSelector(trigger);
+        const element = SelectorEngine.getElementFromSelector(trigger);
         if (element && !this._isShown(element)) {
           this._addAriaAndCollapsedClass([trigger], false);
         }
@@ -1626,7 +1635,7 @@
       }
       const children = this._getFirstLevelChildren(SELECTOR_DATA_TOGGLE$4);
       for (const element of children) {
-        const selected = getElementFromSelector(element);
+        const selected = SelectorEngine.getElementFromSelector(element);
         if (selected) {
           this._addAriaAndCollapsedClass([element], this._isShown(selected));
         }
@@ -1674,9 +1683,7 @@
     if (event.target.tagName === 'A' || event.delegateTarget && event.delegateTarget.tagName === 'A') {
       event.preventDefault();
     }
-    const selector = getSelectorFromElement(this);
-    const selectorElements = SelectorEngine.find(selector);
-    for (const element of selectorElements) {
+    for (const element of SelectorEngine.getMultipleElementsFromSelector(this)) {
       Collapse.getOrCreateInstance(element, {
         toggle: false
       }).toggle();
@@ -1725,7 +1732,7 @@
     return element ? (element.nodeName || '').toLowerCase() : null;
   }
 
-  function getWindow(node) {
+  function getWindow$1(node) {
     if (node == null) {
       return window;
     }
@@ -1739,12 +1746,12 @@
   }
 
   function isElement(node) {
-    var OwnElement = getWindow(node).Element;
+    var OwnElement = getWindow$1(node).Element;
     return node instanceof OwnElement || node instanceof Element;
   }
 
   function isHTMLElement(node) {
-    var OwnElement = getWindow(node).HTMLElement;
+    var OwnElement = getWindow$1(node).HTMLElement;
     return node instanceof OwnElement || node instanceof HTMLElement;
   }
 
@@ -1754,7 +1761,7 @@
       return false;
     }
 
-    var OwnElement = getWindow(node).ShadowRoot;
+    var OwnElement = getWindow$1(node).ShadowRoot;
     return node instanceof OwnElement || node instanceof ShadowRoot;
   }
 
@@ -1883,7 +1890,7 @@
       scaleY = element.offsetHeight > 0 ? round(clientRect.height) / element.offsetHeight || 1 : 1;
     }
 
-    var _ref = isElement(element) ? getWindow(element) : window,
+    var _ref = isElement(element) ? getWindow$1(element) : window,
         visualViewport = _ref.visualViewport;
 
     var addVisualOffsets = !isLayoutViewport() && isFixedStrategy;
@@ -1952,7 +1959,7 @@
   }
 
   function getComputedStyle$1(element) {
-    return getWindow(element).getComputedStyle(element);
+    return getWindow$1(element).getComputedStyle(element);
   }
 
   function isTableElement(element) {
@@ -2030,7 +2037,7 @@
 
 
   function getOffsetParent(element) {
-    var window = getWindow(element);
+    var window = getWindow$1(element);
     var offsetParent = getTrueOffsetParent(element);
 
     while (offsetParent && isTableElement(offsetParent) && getComputedStyle$1(offsetParent).position === 'static') {
@@ -2221,7 +2228,7 @@
       var heightProp = 'clientHeight';
       var widthProp = 'clientWidth';
 
-      if (offsetParent === getWindow(popper)) {
+      if (offsetParent === getWindow$1(popper)) {
         offsetParent = getDocumentElement(popper);
 
         if (getComputedStyle$1(offsetParent).position !== 'static' && position === 'absolute') {
@@ -2337,7 +2344,7 @@
         scroll = _options$scroll === void 0 ? true : _options$scroll,
         _options$resize = options.resize,
         resize = _options$resize === void 0 ? true : _options$resize;
-    var window = getWindow(state.elements.popper);
+    var window = getWindow$1(state.elements.popper);
     var scrollParents = [].concat(state.scrollParents.reference, state.scrollParents.popper);
 
     if (scroll) {
@@ -2396,7 +2403,7 @@
   }
 
   function getWindowScroll(node) {
-    var win = getWindow(node);
+    var win = getWindow$1(node);
     var scrollLeft = win.pageXOffset;
     var scrollTop = win.pageYOffset;
     return {
@@ -2417,7 +2424,7 @@
   }
 
   function getViewportRect(element, strategy) {
-    var win = getWindow(element);
+    var win = getWindow$1(element);
     var html = getDocumentElement(element);
     var visualViewport = win.visualViewport;
     var width = html.clientWidth;
@@ -2508,7 +2515,7 @@
 
     var scrollParent = getScrollParent(element);
     var isBody = scrollParent === ((_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body);
-    var win = getWindow(scrollParent);
+    var win = getWindow$1(scrollParent);
     var target = isBody ? [win].concat(win.visualViewport || [], isScrollParent(scrollParent) ? scrollParent : []) : scrollParent;
     var updatedList = list.concat(target);
     return isBody ? updatedList : // $FlowFixMe[incompatible-call]: isBody tells us target will be an HTMLElement here
@@ -3159,7 +3166,7 @@
   }
 
   function getNodeScroll(node) {
-    if (node === getWindow(node) || !isHTMLElement(node)) {
+    if (node === getWindow$1(node) || !isHTMLElement(node)) {
       return getWindowScroll(node);
     } else {
       return getHTMLElementScroll(node);
@@ -3537,7 +3544,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): dropdown.js
+   * Bootstrap (v5.2.3): dropdown.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -3905,7 +3912,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): util/scrollBar.js
+   * Bootstrap (v5.2.3): util/scrollBar.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -3926,7 +3933,7 @@
   class ScrollBarHelper {
     constructor() {
       this._element = getDocument().body;
-      this._window = getWindow$1();
+      this._window = getWindow$2();
     }
 
     // Public
@@ -4003,7 +4010,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): util/backdrop.js
+   * Bootstrap (v5.2.3): util/backdrop.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -4127,7 +4134,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): util/focustrap.js
+   * Bootstrap (v5.2.3): util/focustrap.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -4226,7 +4233,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): modal.js
+   * Bootstrap (v5.2.3): modal.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -4498,7 +4505,7 @@
    */
 
   EventHandler.on(getDocument(), EVENT_CLICK_DATA_API$2, SELECTOR_DATA_TOGGLE$2, function (event) {
-    const target = getElementFromSelector(this);
+    const target = SelectorEngine.getElementFromSelector(this);
     if (['A', 'AREA'].includes(this.tagName)) {
       event.preventDefault();
     }
@@ -4532,7 +4539,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): offcanvas.js
+   * Bootstrap (v5.2.3): offcanvas.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -4718,7 +4725,7 @@
    */
 
   EventHandler.on(getDocument(), EVENT_CLICK_DATA_API$1, SELECTOR_DATA_TOGGLE$1, function (event) {
-    const target = getElementFromSelector(this);
+    const target = SelectorEngine.getElementFromSelector(this);
     if (['A', 'AREA'].includes(this.tagName)) {
       event.preventDefault();
     }
@@ -4740,12 +4747,12 @@
     const data = Offcanvas.getOrCreateInstance(target);
     data.toggle(this);
   });
-  EventHandler.on(getWindow$1(), EVENT_LOAD_DATA_API$2, () => {
+  EventHandler.on(getWindow$2(), EVENT_LOAD_DATA_API$2, () => {
     for (const selector of SelectorEngine.find(OPEN_SELECTOR)) {
       Offcanvas.getOrCreateInstance(selector).show();
     }
   });
-  EventHandler.on(getWindow$1(), EVENT_RESIZE, () => {
+  EventHandler.on(getWindow$2(), EVENT_RESIZE, () => {
     for (const element of SelectorEngine.find('[aria-modal][class*=show][class*=offcanvas-]')) {
       if (getComputedStyle(element).position !== 'fixed') {
         Offcanvas.getOrCreateInstance(element).hide();
@@ -4762,7 +4769,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): util/sanitizer.js
+   * Bootstrap (v5.2.3): util/sanitizer.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -4834,7 +4841,7 @@
     if (sanitizeFunction && typeof sanitizeFunction === 'function') {
       return sanitizeFunction(unsafeHtml);
     }
-    const windowRef = getWindow$1();
+    const windowRef = getWindow$2();
     const domParser = new windowRef.DOMParser();
     const createdDocument = domParser.parseFromString(unsafeHtml, 'text/html');
     const elements = [].concat(...createdDocument.body.querySelectorAll('*'));
@@ -4857,7 +4864,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): util/template-factory.js
+   * Bootstrap (v5.2.3): util/template-factory.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -4992,7 +4999,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): tooltip.js
+   * Bootstrap (v5.2.3): tooltip.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -5456,9 +5463,9 @@
     }
     _getDelegateConfig() {
       const config = {};
-      for (const key in this._config) {
-        if (this.constructor.Default[key] !== this._config[key]) {
-          config[key] = this._config[key];
+      for (const [key, value] of Object.entries(this._config)) {
+        if (this.constructor.Default[key] !== value) {
+          config[key] = value;
         }
       }
       config.selector = false;
@@ -5503,7 +5510,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): popover.js
+   * Bootstrap (v5.2.3): popover.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -5583,7 +5590,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): scrollspy.js
+   * Bootstrap (v5.2.3): scrollspy.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -5638,7 +5645,7 @@
       // this._element is the observablesContainer and config.target the menu links wrapper
       this._targetLinks = new Map();
       this._observableSections = new Map();
-      this._rootElement = getWindow$1().getComputedStyle(this._element).overflowY === 'visible' ? null : this._element;
+      this._rootElement = getWindow$2().getComputedStyle(this._element).overflowY === 'visible' ? null : this._element;
       this._activeTarget = null;
       this._observer = null;
       this._previousScrollData = {
@@ -5700,7 +5707,7 @@
         const observableSection = this._observableSections.get(event.target.hash);
         if (observableSection) {
           event.preventDefault();
-          const root = this._rootElement || getWindow$1();
+          const root = this._rootElement || getWindow$2();
           const height = observableSection.offsetTop - this._element.offsetTop;
           if (root.scrollTo) {
             root.scrollTo({
@@ -5828,7 +5835,7 @@
    * Data API implementation
    */
 
-  EventHandler.on(getWindow$1(), EVENT_LOAD_DATA_API$1, () => {
+  EventHandler.on(getWindow$2(), EVENT_LOAD_DATA_API$1, () => {
     for (const spy of SelectorEngine.find(SELECTOR_DATA_SPY)) {
       ScrollSpy.getOrCreateInstance(spy);
     }
@@ -5842,7 +5849,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): tab.js
+   * Bootstrap (v5.2.3): tab.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -5932,7 +5939,7 @@
         return;
       }
       element.classList.add(CLASS_NAME_ACTIVE);
-      this._activate(getElementFromSelector(element)); // Search and activate/show the proper section
+      this._activate(SelectorEngine.getElementFromSelector(element)); // Search and activate/show the proper section
 
       const complete = () => {
         if (element.getAttribute('role') !== 'tab') {
@@ -5954,7 +5961,7 @@
       }
       element.classList.remove(CLASS_NAME_ACTIVE);
       element.blur();
-      this._deactivate(getElementFromSelector(element)); // Search and deactivate the shown section too
+      this._deactivate(SelectorEngine.getElementFromSelector(element)); // Search and deactivate the shown section too
 
       const complete = () => {
         if (element.getAttribute('role') !== 'tab') {
@@ -6015,7 +6022,7 @@
       this._setInitialAttributesOnTargetPanel(child);
     }
     _setInitialAttributesOnTargetPanel(child) {
-      const target = getElementFromSelector(child);
+      const target = SelectorEngine.getElementFromSelector(child);
       if (!target) {
         return;
       }
@@ -6090,7 +6097,7 @@
   /**
    * Initialize on focus
    */
-  EventHandler.on(getWindow$1(), EVENT_LOAD_DATA_API, () => {
+  EventHandler.on(getWindow(), EVENT_LOAD_DATA_API, () => {
     for (const element of SelectorEngine.find(SELECTOR_DATA_TOGGLE_ACTIVE)) {
       Tab.getOrCreateInstance(element);
     }
@@ -6103,7 +6110,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): toast.js
+   * Bootstrap (v5.2.3): toast.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -6286,7 +6293,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.2.2): index.umd.js
+   * Bootstrap (v5.2.3): index.umd.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */

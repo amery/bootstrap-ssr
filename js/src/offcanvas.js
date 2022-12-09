@@ -1,25 +1,24 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap (v5.2.2): offcanvas.js
+ * Bootstrap (v5.2.3): offcanvas.js
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  * --------------------------------------------------------------------------
  */
 
 import {
   defineJQueryPlugin,
-  getElementFromSelector,
   isDisabled,
   isVisible,
   getDocument,
   getWindow
-} from './util/index'
-import ScrollBarHelper from './util/scrollbar'
-import EventHandler from './dom/event-handler'
-import BaseComponent from './base-component'
-import SelectorEngine from './dom/selector-engine'
-import Backdrop from './util/backdrop'
-import FocusTrap from './util/focustrap'
-import { enableDismissTrigger } from './util/component-functions'
+} from './util/index.js'
+import ScrollBarHelper from './util/scrollbar.js'
+import EventHandler from './dom/event-handler.js'
+import BaseComponent from './base-component.js'
+import SelectorEngine from './dom/selector-engine.js'
+import Backdrop from './util/backdrop.js'
+import FocusTrap from './util/focustrap.js'
+import { enableDismissTrigger } from './util/component-functions.js'
 
 /**
  * Constants
@@ -233,7 +232,7 @@ class Offcanvas extends BaseComponent {
  */
 
 EventHandler.on(getDocument(), EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
-  const target = getElementFromSelector(this)
+  const target = SelectorEngine.getElementFromSelector(this)
 
   if (['A', 'AREA'].includes(this.tagName)) {
     event.preventDefault()

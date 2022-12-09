@@ -1,6 +1,6 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap (v5.2.2): util/index.js
+ * Bootstrap (v5.2.3): util/index.js
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  * --------------------------------------------------------------------------
  */
@@ -8,6 +8,20 @@
 const MAX_UID = 1_000_000
 const MILLISECONDS_MULTIPLIER = 1000
 const TRANSITION_END = 'transitionend'
+
+/**
+ * Properly escape IDs selectors to handle weird IDs
+ * @param {string} selector
+ * @returns {string}
+ */
+const parseSelector = selector => {
+  if (selector && window.CSS && window.CSS.escape) {
+    // document.querySelector needs escaping to handle IDs (html5+) containing for instance /
+    selector = selector.replace(/#([^\s"#']+)/g, (match, id) => `#${CSS.escape(id)}`)
+  }
+
+  return selector
+}
 
 // Shout-out Angus Croll (https://goo.gl/pxwQGp)
 const toType = object => {
@@ -117,7 +131,7 @@ const getElement = object => {
   }
 
   if (typeof object === 'string' && object.length > 0) {
-    return document.querySelector(object)
+    return document.querySelector(parseSelector(object))
   }
 
   return null
@@ -332,10 +346,8 @@ export {
   findShadowRoot,
   getDocument,
   getElement,
-  getElementFromSelector,
   getjQuery,
   getNextActiveElement,
-  getSelectorFromElement,
   getTransitionDurationFromElement,
   getUID,
   getWindow,
@@ -345,6 +357,7 @@ export {
   isVisible,
   noop,
   onDOMContentLoaded,
+  parseSelector,
   reflow,
   triggerTransitionEnd,
   toType
