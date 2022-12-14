@@ -79,7 +79,7 @@
     let {
       transitionDuration,
       transitionDelay
-    } = getWindow$1().getComputedStyle(element);
+    } = getWindow().getComputedStyle(element);
     const floatTransitionDuration = Number.parseFloat(transitionDuration);
     const floatTransitionDelay = Number.parseFloat(transitionDelay);
 
@@ -183,7 +183,7 @@
   };
 
   const getjQuery = () => {
-    if (getWindow$1().jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
+    if (getWindow().jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return window.jQuery;
     }
     return null;
@@ -282,7 +282,7 @@
   /**
    * @return {window|{}} The proper element
    */
-  const getWindow$1 = () => {
+  const getWindow = () => {
     return typeof window !== 'undefined' ? window : {};
   };
 
@@ -697,7 +697,7 @@
         return;
       }
       this._element = element;
-      this._window = getWindow$1();
+      this._window = getWindow();
       this._document = getDocument();
       this._config = this._getConfig(config);
       Data.set(this._element, this.constructor.DATA_KEY, this);
@@ -1037,7 +1037,7 @@
       }
       this._config = this._getConfig(config);
       this._deltaX = 0;
-      this._supportPointerEvents = Boolean(getWindow$1().PointerEvent);
+      this._supportPointerEvents = Boolean(getWindow().PointerEvent);
       this._initEvents();
     }
 
@@ -1469,7 +1469,7 @@
     carousel.prev();
     carousel._maybeEnableCycle();
   });
-  EventHandler.on(getWindow$1(), EVENT_LOAD_DATA_API$3, () => {
+  EventHandler.on(getWindow(), EVENT_LOAD_DATA_API$3, () => {
     const carousels = SelectorEngine.find(SELECTOR_DATA_RIDE);
     for (const carousel of carousels) {
       Carousel.getOrCreateInstance(carousel);
@@ -2106,7 +2106,7 @@
   class ScrollBarHelper {
     constructor() {
       this._element = getDocument().body;
-      this._window = getWindow$1();
+      this._window = getWindow();
     }
 
     // Public
@@ -2920,12 +2920,12 @@
     const data = Offcanvas.getOrCreateInstance(target);
     data.toggle(this);
   });
-  EventHandler.on(getWindow$1(), EVENT_LOAD_DATA_API$2, () => {
+  EventHandler.on(getWindow(), EVENT_LOAD_DATA_API$2, () => {
     for (const selector of SelectorEngine.find(OPEN_SELECTOR)) {
       Offcanvas.getOrCreateInstance(selector).show();
     }
   });
-  EventHandler.on(getWindow$1(), EVENT_RESIZE, () => {
+  EventHandler.on(getWindow(), EVENT_RESIZE, () => {
     for (const element of SelectorEngine.find('[aria-modal][class*=show][class*=offcanvas-]')) {
       if (getComputedStyle(element).position !== 'fixed') {
         Offcanvas.getOrCreateInstance(element).hide();
@@ -3014,7 +3014,7 @@
     if (sanitizeFunction && typeof sanitizeFunction === 'function') {
       return sanitizeFunction(unsafeHtml);
     }
-    const windowRef = getWindow$1();
+    const windowRef = getWindow();
     const domParser = new windowRef.DOMParser();
     const createdDocument = domParser.parseFromString(unsafeHtml, 'text/html');
     const elements = [].concat(...createdDocument.body.querySelectorAll('*'));
@@ -3818,7 +3818,7 @@
       // this._element is the observablesContainer and config.target the menu links wrapper
       this._targetLinks = new Map();
       this._observableSections = new Map();
-      this._rootElement = getWindow$1().getComputedStyle(this._element).overflowY === 'visible' ? null : this._element;
+      this._rootElement = getWindow().getComputedStyle(this._element).overflowY === 'visible' ? null : this._element;
       this._activeTarget = null;
       this._observer = null;
       this._previousScrollData = {
@@ -3880,7 +3880,7 @@
         const observableSection = this._observableSections.get(event.target.hash);
         if (observableSection) {
           event.preventDefault();
-          const root = this._rootElement || getWindow$1();
+          const root = this._rootElement || getWindow();
           const height = observableSection.offsetTop - this._element.offsetTop;
           if (root.scrollTo) {
             root.scrollTo({
@@ -4008,7 +4008,7 @@
    * Data API implementation
    */
 
-  EventHandler.on(getWindow$1(), EVENT_LOAD_DATA_API$1, () => {
+  EventHandler.on(getWindow(), EVENT_LOAD_DATA_API$1, () => {
     for (const spy of SelectorEngine.find(SELECTOR_DATA_SPY)) {
       ScrollSpy.getOrCreateInstance(spy);
     }
